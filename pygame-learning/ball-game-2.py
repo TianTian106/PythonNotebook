@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 10 15:56:52 2019
+
+@author: tiantian
+
+键盘事件
+"""
+
+import pygame,sys
+
+
+    
+if __name__ == '__main__':
+    # 初始化部分
+    pygame.init()
+    size = width, height = 600, 400
+    speed = [1, 1]
+    BACKGROUND_RGB = 247, 236, 248
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('ball game 2')
+    ball = pygame.image.load('PYG02-ball.gif') # Surface 对象（图像）
+    ballrect = ball.get_rect() # Rect 对象（覆盖图像的外切矩形）
+    fps = 300 # Frames per Second 每秒帧率参数，视频中每次展示的静态图像称为帧。
+    fclock = pygame.time.Clock() # Clock 对象，用于操作时间
+    
+    while True:
+        # 事件处理部分
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                # pygame.quit()
+                # exit()
+                sys.exit(0)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    speed[0] = speed[0] if speed[0] == 0 else (abs(speed[0]) - 1) * int(speed[0] / abs(speed[0]))
+                elif event.key == pygame.K_RIGHT:
+                    speed[0] = speed[0] + 1 if speed[0] >= 0 else speed[0] - 1
+                elif event.key == pygame.K_UP:
+                    speed[1] = speed[1] + 1 if speed[1] >= 0 else speed[1] - 1
+                elif event.key == pygame.K_DOWN:
+                    speed[1] = speed[1] if speed[1] == 0 else (abs(speed[1]) - 1) * int(speed[1] / abs(speed[1]))
+        ballrect = ballrect.move(speed[0], speed[1])
+        if ballrect.left < 0 or ballrect.right > width:
+            speed[0] = -speed[0]
+        if ballrect.top < 0 or ballrect.bottom > height:
+            speed[1] = -speed[1]
+        
+        # 窗口刷新部分
+        screen.fill(BACKGROUND_RGB) # 图片移动走后系统默认填充白色
+        screen.blit(ball, ballrect) # 将ball绘制到ballrect位置上。通过Rect对象引导绘制。
+        pygame.display.update()
+        fclock.tick(fps) # 控制帧速度，即窗口刷新速度。
