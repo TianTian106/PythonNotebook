@@ -41,10 +41,9 @@ pygame.display 控制屏幕，同一时间只能有一个屏幕
 4. 支持OpenGL和硬件加速（参考官网：www.pygame.org）
 """
 
-import pygame,sys
+import pygame
+import sys
 
-
-    
 if __name__ == '__main__':
     # 初始化部分
     pygame.init()
@@ -57,11 +56,11 @@ if __name__ == '__main__':
     BACKGROUND_RGB = 247, 236, 248
     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
     pygame.display.set_caption('ball game 3', 'ball game')
-    ball = pygame.image.load('PYG02-ball.gif') # Surface 对象（图像）
-    ballrect = ball.get_rect() # Rect 对象（覆盖图像的外切矩形）
-    fps = 300 # Frames per Second 每秒帧率参数，视频中每次展示的静态图像称为帧。
-    fclock = pygame.time.Clock() # Clock 对象，用于操作时间
-    
+    ball = pygame.image.load('PYG02-ball.gif')  # Surface 对象（图像）
+    ballrect = ball.get_rect()  # Rect 对象（覆盖图像的外切矩形）
+    fps = 300  # Frames per Second 每秒帧率参数，视频中每次展示的静态图像称为帧。
+    fclock = pygame.time.Clock()  # Clock 对象，用于操作时间
+
     while True:
         # 事件处理部分
         for event in pygame.event.get():
@@ -83,16 +82,16 @@ if __name__ == '__main__':
             elif event.type == pygame.VIDEORESIZE:
                 size = width, height = event.size[0], event.size[1]
                 screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-                
+
         if pygame.display.get_active():
             ballrect = ballrect.move(speed[0], speed[1])
         if ballrect.left < 0 or ballrect.right > width:
             speed[0] = -speed[0]
         if ballrect.top < 0 or ballrect.bottom > height:
             speed[1] = -speed[1]
-        
+
         # 窗口刷新部分
-        screen.fill(BACKGROUND_RGB) # 图片移动走后系统默认填充白色
-        screen.blit(ball, ballrect) # 将ball绘制到ballrect位置上。通过Rect对象引导绘制。
-        pygame.display.update() # pygame.display 控制屏幕
-        fclock.tick(fps) # 控制帧速度，即窗口刷新速度。
+        screen.fill(BACKGROUND_RGB)  # 图片移动走后系统默认填充白色
+        screen.blit(ball, ballrect)  # 将ball绘制到ballrect位置上。通过Rect对象引导绘制。
+        pygame.display.update()  # pygame.display 控制屏幕
+        fclock.tick(fps)  # 控制帧速度，即窗口刷新速度。
