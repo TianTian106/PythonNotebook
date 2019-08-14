@@ -5,55 +5,30 @@ Created on Tue Aug 13 00:16:16 2019
 
 @author: tiantian
 
-1. 键盘事件及类型的使用
-    pygame.event.KEYDOWN : 键盘按下事件
-        返回：
-        event.unicode    按键的unicode码（unicode码与平台有关，不推荐使用 ）
-        event.key        按键的常量名称
-        event.mod        按键修饰符组合值（修饰符的按位或运算）
-    pygame.event.KEYUP : 键盘释放事件
-        返回：
-        event.key        按键的常量名称
-        event.mod        按键修饰符组合值（ = KMOD_SHIFT | KMOD_CTRL | KMOD_ALT）
+1. 色彩机制
+    Pygame.Color : 色彩表达
+        Color类用于表达色彩，使用RGB或RGBA色彩模式。A为不透明度，可选
+        Color类可以用色彩名字、RGBA值、HTML色彩格式等方式定义
+        Color(name) : Color('grey')
+        Color(r,g,b,a) : Color(190, 190, 190, 255)
+        Color(rgbvalue) : Color('#BEBEBEFF')
+        pygame.Color.r : 红色值
+        pygame.Color.g : 绿色值
+        pygame.Color.b : 蓝色值
+        pygame.Color.a : alpha值
+        pygame.Color.normalize : 将RGBA各通道值归一到0-1之间
+2. 图形绘制机制
 
-2. 鼠标事件及类型的使用:
-    pygame.event.MOUSEMOTION : 鼠标移动事件
-        返回：
-        event.pos        鼠标当前坐标值(x,y)，相对于窗口左上角
-        event.rel        鼠标相对运动距离(X,Y)，相对于上次事件
-        event.buttons    鼠标按钮状态(a,b,c)，对应鼠标左、中、右键，按下为1，反之为0
-    pygame.event.MOUSEBUTTONUP : 鼠标键释放事件
-        返回：
-        event.pos        鼠标当前坐标值(x,y)，相对于窗口左上角
-        event.button    鼠标释放键编号n，取值0/1/2，分别对应三个键
-    pygame.event.MOUSEBUTTONDOWN : 鼠标键按下事件
-        返回：
-        event.pos        鼠标当前坐标值(x,y)，相对于窗口左上角
-        event.button    鼠标按下键编号n（左键为1，右键为3，设备相关）
 
-3. 事件处理函数：
-    pygame 事件队列最多能存储128个事件。队列满时新到事件将被丢弃。
-    3.1 处理事件：
-        pygame.event.get() : 从事件队列中获得事件列表，即获得所有被队列的事件
-            pygame.event.get(type) : 增加参数，获得某类或某些类事件
-            pygame.event.get(typelist)
-        pygame.event.poll() : 从事件队列中获得一个事件，并从队列中删除。若事件队列为空，返回 event.NOEVENT
-        pygame.event.clear() : 从事件队列中删除事件，默认删除所有事件。可增加参数，删除某类或某些类事件
-    3.2 操作事件队列：设置缓存事件的类型
-        pygame.event.set_blocked(type or typelist) : 控制哪些类型事件不允许被保存到事件队列中
-        pygame.event.get_blocked(type) : 判断某个事件类型是否被事件队列所禁止，禁止返回True，否则返回False
-        pygame.event.set_allowed(type or typelist) : 控制哪些类型事件允许被保存到事件队列中
-    3.3 生成事件：
-        pygame.event.post(Event) : 产生一个事件，并将其放入事件队列
-            一般用于放置用户自定义事件（pygame.USEREVENT）
-            也可以用户放置系统定义事件（如鼠标或键盘等），给定参数
-        pygame.event.Event(type, dict) : 创建一个给定类型的事件
-            事件的属性和值采用字典类型复制，属性名采用字符串形式
-            如果创建已有事件，属性需要一致
 """
 
 import pygame
 import sys
+
+
+def rgb_channel(a):
+    return 0 if a < 0 else (255 if a > 255 else int(a))
+
 
 if __name__ == '__main__':
     # 初始化部分
@@ -66,13 +41,13 @@ if __name__ == '__main__':
     speed = [1, 1]
     BACKGROUND_RGB = 247, 236, 248
     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-    pygame.display.set_caption('ball game 4', 'ball game')
+    pygame.display.set_caption('ball game 5', 'ball game')
     ball = pygame.image.load('PYG02-ball.gif')  # Surface 对象（图像）
     ballrect = ball.get_rect()  # Rect 对象（覆盖图像的外切矩形）
     fps = 300  # Frames per Second 每秒帧率参数，视频中每次展示的静态图像称为帧。
     fclock = pygame.time.Clock()  # Clock 对象，用于操作时间
     still = False  # 标注小球是静止还是移动
-
+    bgcolor = pygame.Color('black')
     while True:
         # 用户自定义事件：
         # uevent = pygame.event.Event(pygame.KEYDOWN, {"unicode": 123, "key": pygame.K_SPACE, "mod": pygame.KMOD_ALT})
@@ -133,9 +108,14 @@ if __name__ == '__main__':
             speed[1] = -speed[1]
             if height < ballrect.bottom < ballrect.bottom + speed[1]:
                 speed[1] = - speed[1]
-
+        # R：水平距离/窗体宽度 取值0-255
+        bgcolor.r = rgb_channel(ballrect.left * 255 / width)
+        # G：垂直距离/窗体高度 取值0-255
+        bgcolor.g = rgb_channel(ballrect.top * 255 / height)
+        # B：水平和垂直速度差别，最小速度/最大速度 取值0-255
+        bgcolor.b = rgb_channel(min(speed[0], speed[1]) * 255 / max(speed[0], speed[1], 1))
         # 窗口刷新部分
-        screen.fill(BACKGROUND_RGB)  # 图片移动走后系统默认填充白色
+        screen.fill(bgcolor)  # 图片移动走后系统默认填充白色
         screen.blit(ball, ballrect)  # 将ball绘制到ballrect位置上。通过Rect对象引导绘制。
         pygame.display.update()  # pygame.display 控制屏幕
         fclock.tick(fps)  # 控制帧速度，即窗口刷新速度。
