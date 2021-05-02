@@ -17,14 +17,48 @@ Created on Tue Aug 13 00:16:16 2019
         pygame.Color.b : 蓝色值
         pygame.Color.a : alpha值
         pygame.Color.normalize : 将RGBA各通道值归一到0-1之间
-2. 图形绘制机制
 
+2. 图形绘制机制 : 利用Rect类操作图形/图像等元素
+    pygame.draw : 图形绘制后，返回一个矩形Rect类表示该形状
+    pygame.Rect : 表达一个矩形区域的类，存储坐标和长度信息。Rect有很多属性和方法。http://www.pygame.org/docs/ref/rect.html
+    eg. pygame.draw.rect(Surface, color, Rect, width = 0)
+            Surface : 矩形的绘制屏幕
+            Color : 矩形的绘制颜色
+            Rect : 矩形的绘制区域
+            width : 绘制边缘的宽度，默认为0，即填充矩形
+    eg. pygame.draw.polygon(Surface, color, pointlist, width = 0) : 绘制多边形
+            pointlist : 多边形顶点坐标列表
+    eg. pygame.draw.circle(Surface, color, pos, radius, width = 0) : 绘制圆形
+            pos : 圆心坐标
+            radius : 半径
+    eg. pygame.draw.ellipse(Surface, color, Rect, width = 0) : 绘制椭圆形
+            Rect : 椭圆形的绘制区域
+    eg. pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle, width = 0) : 绘制椭圆弧形
+            start_angle, stop_angle : 弧形绘制起始和结束弧度值，横向右侧为0度
+    eg. pygame.draw.line(Surface, color, start_pos, end_pos, width = 1) : 绘制直线
+            start_pos, end_pos : 直线的起始和结束坐标
+    eg. pygame.draw.lines(Surface, color, closed, pointlist, width = 1) : 绘制连续多线
+            closed : 如果为True，起止节点间自动增加封闭直线
+            pointlist : 顶点坐标列表
+    eg. pygame.draw.aaline(Surface, color, start_pos, end_pos, blend = 1) : 绘制无锯齿线
+            blend : 不为0时，与线条所在背景颜色进行混合
+    eg. pygame.draw.aalines(Surface, color, closed, pointlist, blend = 1) : 绘制连续无锯齿多线
 
+3. 文字绘制机制 :
+    pygame.freetype : 向屏幕上绘制特定字体的文字，是增强方法，需额外引用
+    eg. Windows C:\Windows\Fonts (*.ttf, *.ttc)
+    pygame.freetype.Font(file, size=0) : 根据字体和字号生成一个 Font 对象，用render*方法绘制具体文字
+        file : 字体类型名称或路径（建议使用绝对路径）
+        size : 字体的大小
+    Font.render_to(surf, dest, text, fgcolor=None, bgcolor=None, rotation=0, size=0) -> Rect
+    Font.render(text, fgcolor=None, bgcolor=None, rotation=0, size=0) -> (Surface, Rect)
+
+4. pygame绘制机制原理精髓
 """
 
 import pygame
 import sys
-
+import pygame.freetype
 
 def rgb_channel(a):
     return 0 if a < 0 else (255 if a > 255 else int(a))
@@ -48,6 +82,14 @@ if __name__ == '__main__':
     fclock = pygame.time.Clock()  # Clock 对象，用于操作时间
     still = False  # 标注小球是静止还是移动
     bgcolor = pygame.Color('black')
+    # 绘制图形：
+    # rect1 = pygame.draw.rect(screen, pygame.Color('green'), (100, 100, 200, 100), 5)
+    # rect2 = pygame.draw.rect(screen, pygame.Color('red'), (210, 210, 200, 100), 0)
+    # 绘制文字：
+    # font1 = pygame.freetype.Font("/Library/Fonts/Songti.ttc", 36)
+    # font1Rect = font1.render_to(screen, (200, 160), "世界和平", fgcolor=pygame.Color('yellow'), size=50)
+    # f1surf, f1rect = font1.render("世界和平", fgcolor=pygame.Color('yellow'), size=50)
+    # screen.blit(f1surf, (200, 160))
     while True:
         # 用户自定义事件：
         # uevent = pygame.event.Event(pygame.KEYDOWN, {"unicode": 123, "key": pygame.K_SPACE, "mod": pygame.KMOD_ALT})
@@ -118,4 +160,4 @@ if __name__ == '__main__':
         screen.fill(bgcolor)  # 图片移动走后系统默认填充白色
         screen.blit(ball, ballrect)  # 将ball绘制到ballrect位置上。通过Rect对象引导绘制。
         pygame.display.update()  # pygame.display 控制屏幕
-        fclock.tick(fps)  # 控制帧速度，即窗口刷新速度。
+        fclock.tick(fps)  # 控制帧速度，即窗口刷新速度
